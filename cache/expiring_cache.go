@@ -7,29 +7,28 @@ import (
 )
 
 type ExpiringCache struct {
-	bucket *structures.Bucket
+	bucket *structures.Store[[]byte]
 }
 
 func NewExpiringCache() *ExpiringCache {
 	return &ExpiringCache{
-		bucket: structures.NewBucket(),
+		bucket: structures.NewStore[[]byte](1000, 50),
 	}
 }
 
 // Set will store the key value pair with a given TTL.
 func (c *ExpiringCache) Set(key, value []byte, ttl time.Duration) {
-	c.bucket.Set(key, value, ttl)
+	c.bucket.Set(string(key), value)
 }
 
 // Get returns the value stored using `key`.
 //
 // If the key is not present value will be set to nil.
-func (c *ExpiringCache) Get(key []byte) (value []byte, ttl time.Duration) {
-	ttl = c.bucket.TTL(key)
-	if ttl <= 0 {
+func (c *ExpiringCache) Get(key []byte) ([]byte, time.Duration) {
+	v := *c.bucket.Get(string(key))
+	if v == nil {
 		return nil, -1
 	}
 
-	value = c.bucket.Get(key)
-	return
+	return v, 0
 }

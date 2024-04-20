@@ -2,7 +2,7 @@ package structures
 
 import "time"
 
-type cacheValue struct {
-	value      []byte
-	expiration time.Time
+type CacheValue struct {
+	Value      []byte
+	Expiration time.Time
 }
